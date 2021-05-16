@@ -225,7 +225,7 @@ Resources:
                   Configuration:
                     Owner: scottjbaldwin
                     Repo: salad
-                    BranchName: main
+                    Branch: main
                     OAuthToken:  "{{resolve:secretsmanager:CovidSafeOAuthToken:SecretString:AccessToken}}"
                   OutputArtifacts:
                     - Name: SourceArtefact
