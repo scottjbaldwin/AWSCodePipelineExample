@@ -36,8 +36,8 @@ phases:
       # Generate a CI package for the lambda
       - dotnet lambda package-ci >
         --configuration Release
-        --project-location ./CovidAPI/src/CovidAPI
-        --template CovidAPI.yml
+        --project-location CovidAPI/src/CovidAPI
+        --template covidapi.yml
         --s3-bucket $BUILD_OUTPUT_BUCKET
         --s3-prefix covid-safe/$CODEBUILD_SOURCE_VERSION/$CODEBUILD_BUILD_ID
         --output-template CovidAPIStack.yml
