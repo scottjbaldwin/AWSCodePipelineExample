@@ -53,7 +53,7 @@ Resources:
             Principal:
               AWS: !Sub 'arn:aws:iam::${ProdAccountNo}:root'
             Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::$${BucketPrefix}-artefactbucket/*'
+            Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket/*'
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
