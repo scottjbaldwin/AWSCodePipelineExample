@@ -247,7 +247,7 @@ Resources:
                   RunOrder: 1
             - Name: DeployToDev
               Actions:
-                - Name: CreateChangeSet
+                - Name: CreateDevChangeSet
                   RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
                   ActionTypeId:
                     Category: Deploy
@@ -268,8 +268,8 @@ Resources:
                   InputArtifacts:
                     - Name: OutputArtefact
                   RunOrder: 1
-                - Name: ExecuteChangeSet
-                  Namespace: BackendDeploy
+                - Name: ExecuteDevChangeSet
+                  Namespace: DevDeploy
                   RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
                   ActionTypeId:
                     Category: Deploy
@@ -286,7 +286,7 @@ Resources:
                   RunOrder: 2
             - Name: DeployToProd
               Actions:
-                - Name: CreateChangeSet
+                - Name: CreateProdChangeSet
                   RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
                   ActionTypeId:
                     Category: Deploy
@@ -307,8 +307,8 @@ Resources:
                   InputArtifacts:
                     - Name: OutputArtefact
                   RunOrder: 1
-                - Name: ExecuteChangeSet
-                  Namespace: BackendDeploy
+                - Name: ExecuteProdChangeSet
+                  Namespace: ProdDeploy
                   RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
                   ActionTypeId:
                     Category: Deploy
