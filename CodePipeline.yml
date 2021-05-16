@@ -257,9 +257,9 @@ Resources:
                   Configuration:
                     ActionMode: CHANGE_SET_REPLACE
                     RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
-                    StackName: !Sub '${ProjectName}-Stack'
-                    ChangeSetName: !Sub '${ProjectName}-ChangeSet'
-                    TemplatePath: OutputArtefact::ROPPStack.yml
+                    StackName: !Sub '${ProjectName}-Dev-Stack'
+                    ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
+                    TemplatePath: OutputArtefact::CovidAPIStack.yml
                     Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
                     ParameterOverrides: |
                       {
@@ -279,10 +279,10 @@ Resources:
                   Configuration:
                     ActionMode: CHANGE_SET_EXECUTE
                     RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
-                    StackName: !Sub '${ProjectName}-Stack'
-                    ChangeSetName: !Sub '${ProjectName}-ChangeSet'
+                    StackName: !Sub '${ProjectName}-Dev-Stack'
+                    ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
                   OutputArtifacts:
-                    - Name: !Sub '${ProjectName}BetaChangeSet'
+                    - Name: !Sub '${ProjectName}DevChangeSet'
                   RunOrder: 2
             - Name: DeployToProd
               Actions:
@@ -296,9 +296,9 @@ Resources:
                   Configuration:
                     ActionMode: CHANGE_SET_REPLACE
                     RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
-                    StackName: !Sub '${ProjectName}-Stack'
-                    ChangeSetName: !Sub '${ProjectName}-ChangeSet'
-                    TemplatePath: OutputArtefact::ROPPStack.yml
+                    StackName: !Sub '${ProjectName}-Prod-Stack'
+                    ChangeSetName: !Sub '${ProjectName}-Prod-ChangeSet'
+                    TemplatePath: OutputArtefact::CovidAPIStack.yml
                     Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
                     ParameterOverrides: |
                       {
@@ -318,8 +318,8 @@ Resources:
                   Configuration:
                     ActionMode: CHANGE_SET_EXECUTE
                     RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
-                    StackName: !Sub '${ProjectName}-Stack'
-                    ChangeSetName: !Sub '${ProjectName}-ChangeSet'
+                    StackName: !Sub '${ProjectName}-Prod-Stack'
+                    ChangeSetName: !Sub '${ProjectName}-Prod-ChangeSet'
                   OutputArtifacts:
-                    - Name: !Sub '${ProjectName}BetaChangeSet'
+                    - Name: !Sub '${ProjectName}ProdChangeSet'
                   RunOrder: 2
