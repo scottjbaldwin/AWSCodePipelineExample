@@ -90,14 +90,6 @@ Resources:
                 Action: 
                   - s3:*
               - Effect: Allow
-                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-file-ingestion/*"
-                Action: 
-                  - s3:*
-              - Effect: Allow
-                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-file-ingestion"
-                Action: 
-                  - s3:*
-              - Effect: Allow
                 Action:
                   - 'codebuild:*'
                   - 'codepipeline:*'
