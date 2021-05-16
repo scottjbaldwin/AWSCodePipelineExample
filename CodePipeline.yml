@@ -94,6 +94,10 @@ Resources:
                   - 'codebuild:*'
                   - 'codepipeline:*'
                 Resource: '*'
+              - Effect: Allow
+                Action:
+                  - ecr:*
+                Resource: '*'
     
   # CodeBuild
   CodeBuildProject:
