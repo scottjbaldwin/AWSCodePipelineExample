@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.
+Parameters: {}
+Conditions: {}
+Resources:
+  AspNetCoreFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - 
+            Effect: "Allow"
+            Action: 'sts:AssumeRole'
+            Principal:
+              Service: lambda.amazonaws.com
+  
+  FunctionCloudWatchPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CovidAPIFunctionCloudWatchPolicy
+      Roles:
+       - !Ref AspNetCoreFunctionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action:
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*'
+
+  ApiDynamoDBPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: CovidAPIDynamoDBPolicy
+      Roles:
+        - !Ref AspNetCoreFunctionRole
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchGetItem
+            - dynamodb:BatchWriteItem
+            - dynamodb:DescribeTable
+            - dynamodb:Query
+            - dynamodb:Scan
+            Effect: Allow
+            Resource: 
+              !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CovidAPITable}'
+          - Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            Effect: Allow
+            Resource: 
+              !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${CovidAPITable}'
+
+  FunctionXRayPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles:
+        - !Ref AspNetCoreFunctionRole
+      PolicyName: CovidAPIFunctionXRayPolicy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action:
+          - xray:PutTelemetryRecords
+          - xray:PutTraceSegments
+          Effect: Allow
+          Resource: "*"
+
+  AspNetCoreFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      ImageConfig:
+        EntryPoint:
+        - /lambda-entrypoint.sh
+        Command:
+        - CovidAPI::CovidAPI.LambdaEntryPoint::FunctionHandlerAsync
+      ImageUri: ""
+      MemorySize: 2048
+      Timeout: 30
+      Tracing: Active
+      Role: 
+        !GetAtt 
+          - AspNetCoreFunctionRole
+          - Arn
+      Events:
+        ProxyResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+        RootResource:
+          Type: Api
+          Properties:
+            Path: /
+            Method: ANY
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: ""
+  CovidAPITable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+      BillingMode: PAY_PER_REQUEST
+      TableName: CovidAPI
+Outputs:
+  ApiURL:
+    Description: API endpoint URL for Prod environment
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
+
