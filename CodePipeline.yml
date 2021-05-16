@@ -5,6 +5,9 @@ Parameters:
     Type: String
     Default: CovidSafe
     Description: Name for the Project
+  BucketPrefix:
+    Type: String
+    Default: covid-safe
   CodeBuildEnvironment:
     Type: String
     Default: "aws/codebuild/standard:4.0"
@@ -20,7 +23,7 @@ Resources:
   ArtefactBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub ${ProjectName}-artefactbucket
+      BucketName: !Sub ${BucketPrefix}-artefactbucket
   ArtefactBucketPolicy: 
     Type: AWS::S3::BucketPolicy
     Properties: 
@@ -32,25 +35,25 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
             Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::${ProjectName}-artefactbucket'
+            Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
           - Sid: ServicePermit1
             Effect: Allow
             Principal:
               Service: codepipeline.amazonaws.com
             Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::${ProjectName}-artefactbucket'
+            Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
           - Sid: AllowDev
             Effect: Allow
             Principal:
               AWS: !Sub 'arn:aws:iam::${DevAccountNo}:root'
             Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::${ProjectName}-artefactbucket/*'
+            Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket/*'
           - Sid: AllowProd
             Effect: Allow
             Principal:
               AWS: !Sub 'arn:aws:iam::${ProdAccountNo}:root'
             Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::$${ProjectName}-artefactbucket/*'
+            Resource: !Sub 'arn:aws:s3:::$${BucketPrefix}-artefactbucket/*'
 
   CodeBuildServiceRole:
     Type: AWS::IAM::Role
@@ -79,19 +82,19 @@ Resources:
                   - 'logs:CreateLogStream'
                   - 'logs:PutLogEvents'
               - Effect: Allow
-                Resource: !Sub "arn:aws:s3:::${ProjectName}-artefactbucket/*"
+                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-artefactbucket/*"
                 Action: 
                   - s3:*
               - Effect: Allow
-                Resource: !Sub "arn:aws:s3:::${ProjectName}-artefactbucket"
+                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-artefactbucket"
                 Action: 
                   - s3:*
               - Effect: Allow
-                Resource: !Sub "arn:aws:s3:::${ProjectName}-file-ingestion/*"
+                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-file-ingestion/*"
                 Action: 
                   - s3:*
               - Effect: Allow
-                Resource: !Sub "arn:aws:s3:::${ProjectName}-file-ingestion"
+                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-file-ingestion"
                 Action: 
                   - s3:*
               - Effect: Allow
@@ -114,7 +117,7 @@ Resources:
         Image: !Sub '${CodeBuildEnvironment}'
         EnvironmentVariables:
           - Name: BUILD_OUTPUT_BUCKET
-            Value: !Sub ${ProjectName}-artefactbucket
+            Value: !Sub ${BucketPrefix}-artefactbucket
           - Name: AWS_REGION
             Value: !Sub ${AWS::Region}
       ServiceRole: !GetAtt CodeBuildServiceRole.Arn
@@ -148,21 +151,21 @@ Resources:
             Resource: "*"
           - Effect: Allow
             Resource:
-              - !Sub 'arn:aws:s3:::${ProjectName}-artefactbucket/*'
+              - !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket/*'
             Action: 
               - 's3:*'
           - Effect: Allow
             Resource:
-              - !Sub 'arn:aws:s3:::${ProjectName}-artefactbucket'
+              - !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
             Action: 
               - 's3:ListBucket'
               - 's3:GetBucketLocation'
           - Effect: Allow
-            Resource: !Sub "arn:aws:s3:::${ProjectName}-file-ingestion/*"
+            Resource: !Sub "arn:aws:s3:::${BucketPrefix}-file-ingestion/*"
             Action: 
               - s3:*
           - Effect: Allow
-            Resource: !Sub "arn:aws:s3:::${ProjectName}-file-ingestion"
+            Resource: !Sub "arn:aws:s3:::${BucketPrefix}-file-ingestion"
             Action: 
               - 's3:ListBucket'
               - 's3:GetBucketLocation'
@@ -206,7 +209,7 @@ Resources:
       Type: AWS::CodePipeline::Pipeline
       Properties:
         ArtifactStore: 
-            Location: !Sub ${ProjectName}-artefactbucket
+            Location: !Sub ${BucketPrefix}-artefactbucket
             Type: S3
         Name: !Sub ${ProjectName}_pipeline01
         RoleArn: !GetAtt PipelineExecutionRole.Arn
