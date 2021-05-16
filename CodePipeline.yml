@@ -224,7 +224,7 @@ Resources:
                     Version: '1'
                   Configuration:
                     Owner: scottjbaldwin
-                    Repo: salad
+                    Repo: AWSCodePipelineExample
                     Branch: main
                     OAuthToken:  "{{resolve:secretsmanager:CovidSafeOAuthToken:SecretString:AccessToken}}"
                   OutputArtifacts:
