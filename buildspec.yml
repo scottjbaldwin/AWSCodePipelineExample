@@ -1,0 +1,49 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      dotnet: 3.1
+    commands:
+      
+      #Install Amazon Lambda Tools  
+      - dotnet tool install Amazon.Lambda.Tools -g    
+      - export PATH="$PATH:/root/.dotnet/tools"
+
+  pre_build:
+    commands:
+      # log the environment variables we care about
+      - echo $BUILD_OUTPUT_BUCKET
+      - echo $CODEBUILD_BUILD_ID
+      - echo $CODEBUILD_SOURCE_VERSION
+      - echo $AWS_REGION
+
+      # Upgrade apt
+      - apt-get upgrade
+      # Update libs
+      - apt-get update
+
+  build:
+    commands:
+
+      #build the code
+      - dotnet build ./CovidAPI/src/CovidAPI/CovidAPI.csproj
+
+      # run unit tests
+      - dotnet test ./CovidAPI/test/CovidAPI.Tests/CovidAPI.Tests.csproj --verbosity normal --logger "trx;LogFileName=salad.Api.trx" --results-directory './testresults'
+
+  post_build:
+    commands:
+      # Generate a CI package for the lambda
+      - dotnet lambda package-ci >
+        --configuration Release
+        --project-location ./CovidAPI/src/CovidAPI
+        --template CovidAPI.yml
+        --s3-bucket $BUILD_OUTPUT_BUCKET
+        --s3-prefix salad/$CODEBUILD_SOURCE_VERSION/$CODEBUILD_BUILD_ID
+        --output-template CovidAPIStack.yml
+        --region $AWS_REGION
+
+artifacts:
+  files:
+    - CovidAPIStack.yml
+  discard-paths: no
