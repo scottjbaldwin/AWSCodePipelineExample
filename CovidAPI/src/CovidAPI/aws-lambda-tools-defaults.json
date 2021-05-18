@@ -9,7 +9,7 @@
   "region": "",
   "configuration": "Release",
   "s3-prefix": "CovidAPI/",
-  "s3-bucket": "perfco",
+  "s3-bucket": "covid-safe",
   "stack-name": "CovidAPI",
   "template": "covidapi.yml",
   "template-parameters": "",
