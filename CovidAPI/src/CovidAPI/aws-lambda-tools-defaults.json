@@ -6,10 +6,10 @@
     "All the command line options for the Lambda command can be specified in this file."
   ],
   "profile": "",
-  "region": "",
+  "region": "ap-southeast-2",
   "configuration": "Release",
   "s3-prefix": "CovidAPI/",
-  "s3-bucket": "covid-safe",
+  "s3-bucket": "covid-safe-artefact",
   "stack-name": "CovidAPI",
   "template": "covidapi.yml",
   "template-parameters": "",
