@@ -6,7 +6,7 @@ phases:
     commands:
       
       #Install Amazon Lambda Tools  
-      - dotnet tool install Amazon.Lambda.Tools -g    
+      - dotnet tool install Amazon.Lambda.Tools -g
       - export PATH="$PATH:/root/.dotnet/tools"
 
   pre_build:
@@ -38,8 +38,6 @@ phases:
         --configuration Release
         --project-location ./CovidAPI/src/CovidAPI
         --template covidapi.yml
-        --s3-bucket $BUILD_OUTPUT_BUCKET
-        --s3-prefix covid-safe
         --output-template CovidAPIStack.yml
 
 artifacts:
