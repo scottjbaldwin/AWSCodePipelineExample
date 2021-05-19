@@ -80,14 +80,10 @@ Resources:
   AspNetCoreFunction:
     Type: AWS::Serverless::Function
     Properties:
-      PackageType: Image
-      ImageConfig:
-        EntryPoint:
-        - /lambda-entrypoint.sh
-        Command:
-        - CovidAPI::CovidAPI.LambdaEntryPoint::FunctionHandlerAsync
-      ImageUri: ""
+      Handler: CovidAPI::CovidAPI.LambdaEntryPoint::FunctionHandlerAsync
+      Runtime: dotnetcore3.1
       MemorySize: 2048
+      CodeUri: ""
       Timeout: 30
       Tracing: Active
       Role: 
