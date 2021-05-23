@@ -13,7 +13,7 @@ namespace CovidAPI.Controllers
         [HttpGet]
         public string Get()
         {
-            return "1.0.0";
+            return "1.0.4";
         }
     }
 }

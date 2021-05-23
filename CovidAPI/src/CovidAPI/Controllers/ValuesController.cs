@@ -13,6 +13,11 @@ namespace CovidAPI.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+            var env = Environment.GetEnvironmentVariable("env");
+            if (env == "Prod")
+            {
+                throw new Exception("You can't call this in Prod");
+            }
             return new string[] { "value1", "value2" };
         }
 
