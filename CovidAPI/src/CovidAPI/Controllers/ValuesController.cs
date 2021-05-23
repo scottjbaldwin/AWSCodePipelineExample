@@ -16,7 +16,7 @@ namespace CovidAPI.Controllers
             var env = Environment.GetEnvironmentVariable("env");
             if (env == "Prod")
             {
-                throw new Exception("You can't call this in Prod");
+                Console.WriteLine("Working in prod again...");
             }
             return new string[] { "value1", "value2" };
         }
