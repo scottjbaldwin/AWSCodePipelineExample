@@ -77,6 +77,21 @@ Resources:
           Effect: Allow
           Resource: "*"
 
+  ApiErrorMetricGreaterThanZeroAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmDescription: Lambda Function Error > 0
+      ComparisonOperator: GreaterThanThreshold
+      Dimensions:
+        - Name: ApiName
+          Value: !Ref AWS::StackName
+      EvaluationPeriods: 1
+      MetricName: 5XXError
+      Namespace: AWS/ApiGateway
+      Period: 60
+      Statistic: Sum
+      Threshold: 0
+
   AspNetCoreFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -86,6 +101,12 @@ Resources:
       CodeUri: ""
       Timeout: 30
       Tracing: Active
+      AutoPublishAlias: live
+      DeploymentPreference:
+        Type: AllAtOnce
+        Alarms:
+          # A list of alarms that you want to monitor
+          - !Ref ApiErrorMetricGreaterThanZeroAlarm
       Role: 
         !GetAtt 
           - AspNetCoreFunctionRole
