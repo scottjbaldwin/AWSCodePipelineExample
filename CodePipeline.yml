@@ -399,6 +399,10 @@ Resources:
                     ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
                     TemplatePath: OutputArtefact::CovidAPIStack.yml
                     Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
+                    ParameterOverrides: |
+                      {
+                          "Environment" : "Dev"
+                      }
                   InputArtifacts:
                     - Name: OutputArtefact
                   RunOrder: 1
@@ -448,6 +452,10 @@ Resources:
                     ChangeSetName: !Sub '${ProjectName}-Prod-ChangeSet'
                     TemplatePath: OutputArtefact::CovidAPIStack.yml
                     Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
+                    ParameterOverrides: |
+                      {
+                          "Environment" : "Prod"
+                      }
                   InputArtifacts:
                     - Name: OutputArtefact
                   RunOrder: 1

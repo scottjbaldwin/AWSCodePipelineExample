@@ -1,8 +1,13 @@
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.
-Parameters: {}
-Conditions: {}
+Parameters: 
+  Environment:
+    Type: String
+    Default: Dev
+    Description: The environment the application is being deployed into
+Conditions: 
+  IsProd: !Equals ["Prod", !Ref "Environment"]
 Resources:
   AspNetCoreFunctionRole:
     Type: AWS::IAM::Role
@@ -99,11 +104,14 @@ Resources:
       Runtime: dotnetcore3.1
       MemorySize: 2048
       CodeUri: ""
+      Environment:
+        Variables:
+          env: !Ref Environment
       Timeout: 30
       Tracing: Active
       AutoPublishAlias: live
       DeploymentPreference:
-        Type: AllAtOnce
+        Type: !If [IsProd, Linear10PercentEvery1Minute, AllAtOnce]
         Alarms:
           # A list of alarms that you want to monitor
           - !Ref ApiErrorMetricGreaterThanZeroAlarm
