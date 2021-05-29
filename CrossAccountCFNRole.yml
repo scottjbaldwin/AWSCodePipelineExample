@@ -1,0 +1,77 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: CovidSafe Example application pipeline
+Parameters:
+  ProjectName:
+    Type: String
+    Description: Name for the Project
+  BuildAccountNo:
+    Type: String
+    Description: The ARN of the build account that will use this role to deploy the application
+  ArtefactKMSKeyArn:
+    Type: String
+    Description: The ARN of the CMK KMS Key used artefact encryption
+
+Resources:
+  ProjectDeploymentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - cloudformation.amazonaws.com
+                - codepipeline.amazonaws.com
+                - codebuild.amazonaws.com
+            Action: sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${BuildAccountNo}:root'
+            Action: sts:AssumeRole
+      RoleName: !Sub '${ProjectName}-${AWS::Region}-DeploymentRole'
+      Policies:
+        - PolicyName: Allow-Application-Infrastructure-Provisioning
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: lambda:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudwatch:*
+                Resource: '*'
+              - Effect: Allow
+                Action: dynamodb:*
+                Resource: '*'
+              - Effect: Allow
+                Action: s3:*
+                Resource: '*'
+              - Effect: Allow
+                Action: codedeploy:*
+                Resource: '*'
+              - Effect: Allow
+                Action: xray:*
+                Resource: '*'
+              - Effect: Allow
+                Action: apigateway:*
+                Resource: '*'
+              - Effect: Allow
+                Action: iam:*
+                Resource: '*'
+              - Effect: Allow
+                Action: cloudformation:*
+                Resource: '*'
+        - PolicyName: Artefact-KMS-Key-Access
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              Effect: Allow
+              Action: 
+                - kms:Encrypt
+                - kms:Decrypt
+                - kms:ReEncrypt*
+                - kms:GenerateDataKey*
+                - kms:DescribeKey
+              Resource: !Ref ArtefactKMSKeyArn

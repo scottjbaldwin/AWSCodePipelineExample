@@ -321,8 +321,8 @@ Resources:
               - Effect: Allow
                 Action: 'sts:AssumeRole'
                 Resource: 
-                  - !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
-                  - !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
+                  - !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
+                  - !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
               - Effect: Allow
                 Action:
                   - kms:Encrypt
@@ -393,7 +393,7 @@ Resources:
             - Name: DeployToDev
               Actions:
                 - Name: CreateDevChangeSet
-                  RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
+                  RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                   ActionTypeId:
                     Category: Deploy
                     Owner: AWS
@@ -401,7 +401,7 @@ Resources:
                     Version: '1'
                   Configuration:
                     ActionMode: CHANGE_SET_REPLACE
-                    RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
+                    RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                     StackName: !Sub '${ProjectName}-Dev-Stack'
                     ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
                     TemplatePath: OutputArtefact::CovidAPIStack.yml
@@ -415,7 +415,7 @@ Resources:
                   RunOrder: 1
                 - Name: ExecuteDevChangeSet
                   Namespace: DevDeploy
-                  RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
+                  RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                   ActionTypeId:
                     Category: Deploy
                     Owner: AWS
@@ -423,7 +423,7 @@ Resources:
                     Version: '1'
                   Configuration:
                     ActionMode: CHANGE_SET_EXECUTE
-                    RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}
+                    RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                     StackName: !Sub '${ProjectName}-Dev-Stack'
                     ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
                   OutputArtifacts:
@@ -446,7 +446,7 @@ Resources:
             - Name: DeployToProd
               Actions:
                 - Name: CreateProdChangeSet
-                  RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
+                  RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                   ActionTypeId:
                     Category: Deploy
                     Owner: AWS
@@ -454,7 +454,7 @@ Resources:
                     Version: '1'
                   Configuration:
                     ActionMode: CHANGE_SET_REPLACE
-                    RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
+                    RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                     StackName: !Sub '${ProjectName}-Prod-Stack'
                     ChangeSetName: !Sub '${ProjectName}-Prod-ChangeSet'
                     TemplatePath: OutputArtefact::CovidAPIStack.yml
@@ -468,7 +468,7 @@ Resources:
                   RunOrder: 1
                 - Name: ExecuteProdChangeSet
                   Namespace: ProdDeploy
-                  RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
+                  RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                   ActionTypeId:
                     Category: Deploy
                     Owner: AWS
@@ -476,7 +476,7 @@ Resources:
                     Version: '1'
                   Configuration:
                     ActionMode: CHANGE_SET_EXECUTE
-                    RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}
+                    RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                     StackName: !Sub '${ProjectName}-Prod-Stack'
                     ChangeSetName: !Sub '${ProjectName}-Prod-ChangeSet'
                   OutputArtifacts:
