@@ -18,9 +18,6 @@ Parameters:
   ProdAccountNo:
     Type: String
     Description: The Account Number of the prod account
-  KMSArtefactKeyArn:
-    Type: String
-    Description: Arn of the KMS key used to Encrypt and Decrypt the Artefacts
 
 Resources:
   ArtefactBucket:
@@ -31,7 +28,9 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: 'aws:kms'
-              KMSMasterKeyID: !Ref KMSArtefactKeyArn
+              KMSMasterKeyID: 
+                Fn::ImportValue: 
+                  !Sub '${ProjectName}:ArtefactKMSKey'
       PublicAccessBlockConfiguration:
         BlockPublicAcls: true
         BlockPublicPolicy: true
@@ -135,7 +134,9 @@ Resources:
                   - kms:ReEncrypt*
                   - kms:DescribeKey*
                   - kms:GenerateDataKey
-                Resource: !Ref KMSArtefactKeyArn
+                Resource: 
+                  Fn::ImportValue: 
+                    !Sub '${ProjectName}:ArtefactKMSKey'
               - Effect: Allow
                 Action:
                   - 'kms:ListKeys'
@@ -215,7 +216,9 @@ Resources:
                   - kms:ReEncrypt*
                   - kms:DescribeKey*
                   - kms:GenerateDataKey
-                Resource: !Ref KMSArtefactKeyArn
+                Resource:
+                  Fn::ImportValue: 
+                    !Sub '${ProjectName}:ArtefactKMSKey'
               - Effect: Allow
                 Action:
                   - 'kms:ListKeys'
@@ -327,7 +330,9 @@ Resources:
                   - kms:ReEncrypt*
                   - kms:DescribeKey*
                   - kms:GenerateDataKey
-                Resource: !Ref KMSArtefactKeyArn
+                Resource:
+                  Fn::ImportValue: 
+                    !Sub '${ProjectName}:ArtefactKMSKey'
               - Effect: Allow
                 Action:
                   - 'kms:ListKeys'
@@ -347,7 +352,9 @@ Resources:
             Location: !Sub ${BucketPrefix}-artefactbucket
             Type: S3
             EncryptionKey:
-              Id: !Ref KMSArtefactKeyArn
+              Id: 
+                Fn::ImportValue:
+                  !Sub '${ProjectName}:ArtefactKMSKey'
               Type: KMS
         Name: !Sub ${ProjectName}_pipeline01
         RoleArn: !GetAtt PipelineExecutionRole.Arn
