@@ -1,0 +1,92 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This template sets up the base infrastructure required for a CrossAccount CodePipeline
+
+Parameters:
+  ProjectName:
+    Type: String
+    Description: The name of the project this base infrastructure will support
+  KeyAdministratorArn:
+    Type: String
+    Description: "The arn of the Administrator of this KMS Key"
+  DevAccountNo:
+    Type: String
+    Description: The Account Number of the dev account
+  ProdAccountNo:
+    Type: String
+    Description: The Account Number of the prod account
+
+Resources:
+  ArtefactKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: !Sub 'KMS CMK for ${ProjectName} Artefacts'
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName 
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: !Sub '${ProjectName}-artefact-key-policy'
+        Statement:
+          - Sid: Allow IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: kms:*
+            Resource: '*'
+          - Sid: Allow administration of the key
+            Effect: Allow
+            Principal:
+              AWS: 
+                - !Ref KeyAdministratorArn
+            Action:
+            - kms:Create*
+            - kms:Describe*
+            - kms:Enable*
+            - kms:List*
+            - kms:Put*
+            - kms:Update*
+            - kms:Revoke*
+            - kms:Disable*
+            - kms:Get*
+            - kms:Delete*
+            - kms:ScheduleKeyDeletion
+            - kms:CancelKeyDeletion
+            Resource: '*'
+          - Sid: Allow Cross Account Access
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${DevAccountNo}:root'
+                - !Sub 'arn:aws:iam::${ProdAccountNo}:root'
+            Action:
+              - kms:Encrypt
+              - kms:Decrypt
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:DescribeKey
+            Resource: '*'
+          - Sid: Allow attachment of persistent resources
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${DevAccountNo}:root'
+                - !Sub 'arn:aws:iam::${ProdAccountNo}:root'
+            Action:
+              - kms:CreateGrant
+              - kms:ListGrants
+              - kms:RevokeGrant
+            Resource: '*'
+
+  ArtefactKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub 'alias/${ProjectName}-ArtefactKey'
+      TargetKeyId: !Ref ArtefactKMSKey
+
+Outputs:
+  AretfactKMSKey:
+    Description: The ARN of the KMS Key to be used for artefacts'
+    Value: !GetAtt  ArtefactKMSKey.Arn
+    Export: 
+      Name: !Sub '${ProjectName}:ArtefactKMSKey'
