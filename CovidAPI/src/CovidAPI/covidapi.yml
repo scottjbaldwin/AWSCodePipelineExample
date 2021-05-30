@@ -20,13 +20,26 @@ Resources:
             Action: 'sts:AssumeRole'
             Principal:
               Service: lambda.amazonaws.com
+
+  LifecycleEventHookRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - 
+            Effect: "Allow"
+            Action: 'sts:AssumeRole'
+            Principal:
+              Service: lambda.amazonaws.com
   
   FunctionCloudWatchPolicy:
     Type: AWS::IAM::Policy
     Properties:
       PolicyName: CovidAPIFunctionCloudWatchPolicy
       Roles:
-       - !Ref AspNetCoreFunctionRole
+        - !Ref AspNetCoreFunctionRole
+        - !Ref LifecycleEventHookRole
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -72,6 +85,7 @@ Resources:
     Properties:
       Roles:
         - !Ref AspNetCoreFunctionRole
+        - !Ref LifecycleEventHookRole
       PolicyName: CovidAPIFunctionXRayPolicy
       PolicyDocument:
         Version: "2012-10-17"
@@ -81,6 +95,20 @@ Resources:
           - xray:PutTraceSegments
           Effect: Allow
           Resource: "*"
+
+  LifecycleFunctionCodeDeployPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      Roles: 
+        - !Ref LifecycleEventHookRole
+      PolicyName: LifecycleHookCodeDeployPolicy
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: codedeploy:*
+            Resource: !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:*'
 
   ApiErrorMetricGreaterThanZeroAlarm:
     Type: "AWS::CloudWatch::Alarm"
