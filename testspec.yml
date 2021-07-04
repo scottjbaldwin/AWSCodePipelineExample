@@ -1,0 +1,16 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      # log the environment variables we care about
+      - echo $API_URL
+  build:
+    commands:
+
+      #build the code
+      - pwsh -Command "&{. ./CovidAPI/src/CovidApi/RunDevTests.ps1}"
+
+artifacts:
+  files:
+    - registrations.json
+  discard-paths: no

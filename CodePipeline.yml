@@ -168,6 +168,87 @@ Resources:
       Tags:
         - Key: Project
           Value: !Ref ProjectName
+
+  CodeTestServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action: 
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - codebuild.amazonaws.com
+      Path: /
+      Policies:
+        - PolicyName: CodeBuildAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_test'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_test:*'
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+              - Effect: Allow
+                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-artefactbucket/*"
+                Action: 
+                  - s3:*
+              - Effect: Allow
+                Resource: !Sub "arn:aws:s3:::${BucketPrefix}-artefactbucket"
+                Action: 
+                  - s3:*
+              - Effect: Allow
+                Action:
+                  - 'codebuild:*'
+                  - 'codepipeline:*'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - kms:Encrypt
+                  - kms:Decrypt
+                  - kms:ReEncrypt*
+                  - kms:DescribeKey*
+                  - kms:GenerateDataKey
+                Resource: !Ref KMSArtefactKeyArn
+              - Effect: Allow
+                Action:
+                  - 'kms:ListKeys'
+                  - 'kms:ListAliases'
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
+
+  # CodeTest
+  CodeTestProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${ProjectName}_test'
+      Description: Runs a script that tests the deployed artefact
+      Artifacts:
+        Type: CODEPIPELINE
+      Environment: 
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: !Sub '${CodeBuildEnvironment}'
+        EnvironmentVariables:
+          - Name: BUILD_OUTPUT_BUCKET
+            Value: !Sub ${BucketPrefix}-artefactbucket
+          - Name: AWS_REGION
+            Value: !Sub ${AWS::Region}
+      ServiceRole: !GetAtt CodeTestServiceRole.Arn
+      Source: 
+        Type: CODEPIPELINE
+        BuildSpec: testspec.yml
+      Tags:
+        - Key: Project
+          Value: !Ref ProjectName
     
   # CodePipeline definition and required roles
   CFNPipelinePolicy:
@@ -337,6 +418,20 @@ Resources:
                   OutputArtifacts:
                     - Name: !Sub '${ProjectName}DevChangeSet'
                   RunOrder: 2
+                - Name: IntegrationTests
+                  ActionTypeId:
+                    Category: Test
+                    Owner: AWS
+                    Provider: CodeBuild
+                    Version: '1'
+                  Configuration:
+                    ProjectName: !Ref CodeTestProject
+                    EnvironmentVariables: '[{"name":"API_URL","value":"#{DevDeploy.ApiURL}","type":"PLAINTEXT"}]'
+                  InputArtifacts:
+                    - Name: SourceArtefact
+                  OutputArtifacts:
+                    - Name: TestArtefact
+                  RunOrder: 3
             - Name: DeployToProd
               Actions:
                 - Name: CreateProdChangeSet
