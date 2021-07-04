@@ -1,0 +1,38 @@
+{
+  "ModelName": "CovidAPI",
+  "ModelMetadata": {
+    "Author": "Scott Baldwin",
+    "DateCreated": "Feb 13, 2021, 06:35 PM",
+    "DateLastModified": "Feb 13, 2021, 06:39 PM",
+    "Description": "Data model for Challenge #2 of the Telstra Purple AWS Developer Skills uplift",
+    "Version": "1.0"
+  },
+  "DataModel": [
+    {
+      "TableName": "CovidAPI",
+      "KeyAttributes": {
+        "PartitionKey": {
+          "AttributeName": "pk",
+          "AttributeType": "S"
+        },
+        "SortKey": {
+          "AttributeName": "sk",
+          "AttributeType": "S"
+        }
+      },
+      "NonKeyAttributes": [
+        {
+          "AttributeName": "LocationId",
+          "AttributeType": "S"
+        },
+        {
+          "AttributeName": "Location",
+          "AttributeType": "S"
+        }
+      ],
+      "DataAccess": {
+        "MySql": {}
+      }
+    }
+  ]
+}
