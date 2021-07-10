@@ -110,6 +110,19 @@ Resources:
             Action: codedeploy:*
             Resource: !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:*'
 
+  LifecycleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: LifecycleHooks::LifecycleHooks.Function.FunctionHandler
+      Runtime: dotnetcore3.1
+      MemorySize: 2048
+      CodeUri: "../LifecycleHooks"
+      Environment:
+        Variables:
+          env: !Ref Environment
+      Timeout: 30
+      Tracing: Active
+      
   ApiErrorMetricGreaterThanZeroAlarm:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -143,6 +156,9 @@ Resources:
         Alarms:
           # A list of alarms that you want to monitor
           - !Ref ApiErrorMetricGreaterThanZeroAlarm
+        Hooks:
+          PreTraffic: !Ref LifecycleFunction
+          PostTraffic: !Ref LifecycleFunction
       Role: 
         !GetAtt 
           - AspNetCoreFunctionRole

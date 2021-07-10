@@ -27,6 +27,7 @@ phases:
 
       #build the code
       - dotnet build ./CovidAPI/src/CovidAPI/CovidAPI.csproj
+      - dotnet build ./CovidAPI/src/LifecycleHooks/LifecycleHooks.csproj
 
       # run unit tests
       - dotnet test ./CovidAPI/test/CovidAPI.Tests/CovidAPI.Tests.csproj --verbosity normal --logger "trx;LogFileName=salad.Api.trx" --results-directory './testresults'
