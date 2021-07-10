@@ -107,9 +107,45 @@ Resources:
         Statement:
           -
             Effect: Allow
-            Action: codedeploy:*
-            Resource: !Sub 'arn:aws:codedeploy:${AWS::Region}:${AWS::AccountId}:*'
+            Action: codedeploy:PutLifecycleEventHookExecutionStatus
+            Resource: "*"
 
+  PreTrafficLifecycleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CodeDeployHook_CovidSafeAPI_PreTrafficHook
+      Handler: LifecycleHooks::LifecycleHooks.Function::PreTrafficHook
+      Runtime: dotnetcore3.1
+      MemorySize: 2048
+      Role: 
+        !GetAtt 
+          - LifecycleEventHookRole
+          - Arn
+      CodeUri: "../LifecycleHooks"
+      Environment:
+        Variables:
+          env: !Ref Environment
+      Timeout: 30
+      Tracing: Active
+
+  PostTrafficLifecycleFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: CodeDeployHook_CovidSafeAPI_PostTrafficHook
+      Handler: LifecycleHooks::LifecycleHooks.Function::PostTrafficHook
+      Runtime: dotnetcore3.1
+      MemorySize: 2048
+      Role: 
+        !GetAtt 
+          - LifecycleEventHookRole
+          - Arn
+      CodeUri: "../LifecycleHooks"
+      Environment:
+        Variables:
+          env: !Ref Environment
+      Timeout: 30
+      Tracing: Active
+      
   ApiErrorMetricGreaterThanZeroAlarm:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -143,6 +179,9 @@ Resources:
         Alarms:
           # A list of alarms that you want to monitor
           - !Ref ApiErrorMetricGreaterThanZeroAlarm
+        Hooks:
+          PreTraffic: !Ref PreTrafficLifecycleFunction
+          PostTraffic: !Ref PostTrafficLifecycleFunction
       Role: 
         !GetAtt 
           - AspNetCoreFunctionRole
