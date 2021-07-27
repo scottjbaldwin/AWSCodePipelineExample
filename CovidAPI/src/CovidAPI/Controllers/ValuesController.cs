@@ -16,7 +16,7 @@ namespace CovidAPI.Controllers
             var env = Environment.GetEnvironmentVariable("env");
             if (env == "Prod")
             {
-                throw new Exception("Contrived production issue");
+                Console.WriteLine("Production issue fixed");
             }
             return new string[] { "value1", "value2" };
         }
