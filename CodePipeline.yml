@@ -63,28 +63,20 @@ Resources:
               Service: codepipeline.amazonaws.com
             Action: 's3:*'
             Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
-          - Sid: AllowDevAccessObjects
+          - Sid: AllowTargetAccountsAccessObjects
             Effect: Allow
             Principal:
-              AWS: !Sub 'arn:aws:iam::${DevAccountNo}:root'
+              AWS: 
+                - !Sub 'arn:aws:iam::${DevAccountNo}:root'
+                - !Sub 'arn:aws:iam::${ProdAccountNo}:root'
             Action: 's3:*'
             Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket/*'
-          - Sid: AllowDevAccess
+          - Sid: AllowTargetAccountsAccess
             Effect: Allow
             Principal:
-              AWS: !Sub 'arn:aws:iam::${DevAccountNo}:root'
-            Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
-          - Sid: AllowProdAccessObjects
-            Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::${ProdAccountNo}:root'
-            Action: 's3:*'
-            Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket/*'
-          - Sid: AllowProdAccess
-            Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::${ProdAccountNo}:root'
+              AWS: 
+                - !Sub 'arn:aws:iam::${DevAccountNo}:root'
+                - !Sub 'arn:aws:iam::${ProdAccountNo}:root'
             Action: 's3:*'
             Resource: !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
 
