@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Amazon.DynamoDBv2;
+using System.Reflection;
 
 namespace CovidAPI
 {
@@ -19,6 +20,11 @@ namespace CovidAPI
     {
         public Startup(IConfiguration configuration)
         {
+            var assembly = Assembly.GetExecutingAssembly();
+            var assemblyVersion = assembly.GetCustomAttributes<AssemblyInformationalVersionAttribute>().ToList()[0].InformationalVersion;
+
+            Console.WriteLine($"AssemblyInfo - name: {assembly.GetName().Name}, Version: {assemblyVersion}");
+
             Configuration = configuration;
         }
 
