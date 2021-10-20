@@ -12,7 +12,7 @@ phases:
   pre_build:
     commands:
       # log the environment variables we care about
-      - echo printenv
+      - printenv
 
       # Upgrade apt
       - apt-get upgrade
