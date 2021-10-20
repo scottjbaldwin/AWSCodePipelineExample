@@ -32,6 +32,7 @@ phases:
   post_build:
     commands:
       # Generate a CI package for the lambda
+      - MSBUILD_PARAMETERS=\"/p:VersionSuffix=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}\"
       - dotnet lambda package-ci >
         --configuration Release
         --project-location ./CovidAPI/src/CovidAPI
@@ -39,7 +40,7 @@ phases:
         --s3-bucket $BUILD_OUTPUT_BUCKET
         --s3-prefix covid-safe/$CODEBUILD_BUILD_ID
         --output-template CovidAPIStack.yml
-        --msbuild-parameters \"/p:VersionSuffix=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}\"
+        --msbuild-parameters $MSBUILD_PARAMETERS
 
 artifacts:
   files:
