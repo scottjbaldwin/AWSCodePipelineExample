@@ -12,10 +12,7 @@ phases:
   pre_build:
     commands:
       # log the environment variables we care about
-      - echo $BUILD_OUTPUT_BUCKET
-      - echo $CODEBUILD_BUILD_ID
-      - echo $CODEBUILD_SOURCE_VERSION
-      - echo $AWS_REGION
+      - echo printenv
 
       # Upgrade apt
       - apt-get upgrade
