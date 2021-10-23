@@ -4,6 +4,8 @@ param (
     $ApiUri=$env:API_URL
 )
 
+$ErrorActionPreference="Stop"
+
 $locationsAPI = $ApiUri + "api/locations"
 $response = Invoke-WebRequest -Uri $locationsAPI
 
