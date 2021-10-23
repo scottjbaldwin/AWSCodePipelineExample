@@ -384,28 +384,7 @@ Resources:
                   RunOrder: 1
             - Name: DeployToDev
               Actions:
-                - Name: CreateDevChangeSet
-                  RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
-                  ActionTypeId:
-                    Category: Deploy
-                    Owner: AWS
-                    Provider: CloudFormation
-                    Version: '1'
-                  Configuration:
-                    ActionMode: CHANGE_SET_REPLACE
-                    RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
-                    StackName: !Sub '${ProjectName}-Dev-Stack'
-                    ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
-                    TemplatePath: OutputArtefact::CovidAPIStack.yml
-                    Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM
-                    ParameterOverrides: |
-                      {
-                          "Environment" : "Dev"
-                      }
-                  InputArtifacts:
-                    - Name: OutputArtefact
-                  RunOrder: 1
-                - Name: ExecuteDevChangeSet
+                - Name: DeployToDev
                   Namespace: DevDeploy
                   RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                   ActionTypeId:
@@ -414,13 +393,20 @@ Resources:
                     Provider: CloudFormation
                     Version: '1'
                   Configuration:
-                    ActionMode: CHANGE_SET_EXECUTE
+                    ActionMode: CHANGE_UPDATE
                     RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                     StackName: !Sub '${ProjectName}-Dev-Stack'
-                    ChangeSetName: !Sub '${ProjectName}-Dev-ChangeSet'
+                    TemplatePath: OutputArtefact::CovidAPIStack.yml
+                    Capabilities: CAPABILITY_IAM,CAPABILITY_NAMED_IAM,CAPABILITY_AUTO_EXPAND
+                    ParameterOverrides: |
+                      {
+                          "Environment" : "Dev"
+                      }
+                  InputArtifacts:
+                    - Name: OutputArtefact
                   OutputArtifacts:
-                    - Name: !Sub '${ProjectName}DevChangeSet'
-                  RunOrder: 2
+                    - Name: !Sub '${ProjectName}DevDeployment'
+                  RunOrder: 1
                 - Name: IntegrationTests
                   ActionTypeId:
                     Category: Test
@@ -434,7 +420,7 @@ Resources:
                     - Name: SourceArtefact
                   OutputArtifacts:
                     - Name: TestArtefact
-                  RunOrder: 3
+                  RunOrder: 2
             - Name: DeployToProd
               Actions:
                 - Name: CreateProdChangeSet
