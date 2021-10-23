@@ -8,7 +8,7 @@ phases:
     commands:
 
       #build the code
-      - pwsh -Command "&{./CovidAPI/src/CovidAPI/RunDevTests.ps1}"
+      - pwsh -File ./CovidAPI/src/CovidAPI/RunDevTests.ps1
 
 artifacts:
   files:
