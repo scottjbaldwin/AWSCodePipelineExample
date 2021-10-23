@@ -244,7 +244,7 @@ Resources:
       Tags:
         - Key: Project
           Value: !Ref ProjectName
-    
+
   # CodePipeline definition and required roles
   CFNPipelinePolicy:
     Type: AWS::IAM::ManagedPolicy
@@ -333,6 +333,39 @@ Resources:
       Tags:
         - Key: Project
           Value: !Ref ProjectName
+
+  # Approval Gate for Production
+  ProductionApproversGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Sub ${ProjectName}-Prod-DeploymentApprovers
+      Path: /
+      Policies:
+        - PolicyName: ApproverPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                  - codepipeline:ListPipelines
+                Resource: '*'
+                Effect: Allow
+              - Action:
+                - codepipeline:GetPipeline
+                - codepipeline:GetPipelineState
+                - codepipeline:GetPipelineExecution
+                Effect: Allow
+                Resource:
+                  - !Sub arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${ProjectName}
+              - Action:
+                - codepipeline:PutApprovalResult
+                Effect: Allow
+                Resource: !Sub arn:${AWS::Partition}:codepipeline:${AWS::Region}:${AWS::AccountId}:${ProjectName}/Prod/DeploymentApproval
+
+  ProdApprovalGateTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub ${ProjectName} Production Deployment Approval Topic
+      TopicName: !Sub ${ProjectName}-Production-Deployment
 
   Pipeline:
       Type: AWS::CodePipeline::Pipeline
@@ -444,6 +477,15 @@ Resources:
                   InputArtifacts:
                     - Name: OutputArtefact
                   RunOrder: 1
+                - Name: DeploymentApproval
+                  ActionTypeId:
+                    Category: Approval
+                    Owner: AWS
+                    Provider: Manual
+                    Version: '1'
+                  Configuration:
+                    NotificationArn: !Ref ProdApprovalGateTopic
+                  RunOrder: 2
                 - Name: ExecuteProdChangeSet
                   Namespace: ProdDeploy
                   RoleArn: !Sub arn:aws:iam::${ProdAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
@@ -459,4 +501,4 @@ Resources:
                     ChangeSetName: !Sub '${ProjectName}-Prod-ChangeSet'
                   OutputArtifacts:
                     - Name: !Sub '${ProjectName}ProdChangeSet'
-                  RunOrder: 2
+                  RunOrder: 3
