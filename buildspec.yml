@@ -31,8 +31,13 @@ phases:
 
   post_build:
     commands:
+# Prepare for the package command
+      - SHORT_VERSION=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo $SHORT_VERSION
+      - MSBUILD_PARAMETERS=\"/p:VersionSuffix=$SHORT_VERSION\"
+      - echo $MSBUILD_PARAMETERS
+
       # Generate a CI package for the lambda
-      - MSBUILD_PARAMETERS=\"/p:VersionSuffix=${CODEBUILD_RESOLVED_SOURCE_VERSION:0:7}\"
       - dotnet lambda package-ci >
         --configuration Release
         --project-location ./CovidAPI/src/CovidAPI
