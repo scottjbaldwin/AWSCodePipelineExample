@@ -6,7 +6,7 @@ param (
 
 $ErrorActionPreference="Stop"
 
-$locationsAPI = $ApiUri + "api/locations"
+$locationsAPI = $ApiUri + "axi/locations"
 $response = Invoke-WebRequest -Uri $locationsAPI
 
 $locations = $response.Content | ConvertFrom-Json
