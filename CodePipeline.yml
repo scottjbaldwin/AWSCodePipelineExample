@@ -330,6 +330,9 @@ Resources:
                   - 'kms:ListKeys'
                   - 'kms:ListAliases'
                 Resource: '*'
+              - Effect: Allow
+                Action: sns:Publish
+                Resource: !Ref ProdApprovalGateTopic
       Tags:
         - Key: Project
           Value: !Ref ProjectName
