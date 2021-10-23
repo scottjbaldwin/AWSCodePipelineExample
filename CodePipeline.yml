@@ -426,7 +426,7 @@ Resources:
                     Provider: CloudFormation
                     Version: '1'
                   Configuration:
-                    ActionMode: CHANGE_UPDATE
+                    ActionMode: CREATE_UPDATE
                     RoleArn: !Sub arn:aws:iam::${DevAccountNo}:role/${ProjectName}-${AWS::Region}-DeploymentRole
                     StackName: !Sub '${ProjectName}-Dev-Stack'
                     TemplatePath: OutputArtefact::CovidAPIStack.yml
