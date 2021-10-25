@@ -12,7 +12,7 @@ In order for this example to run, the infrastructure must be set up in the follo
 1. The dev and prod deployment roles need to be provisioned by executing the `CrossAccountCFNRole.yml` cloudformation script, and passing in the arn of the KMS key provisioned in the previous step
 1. The CodePipeline can then be provisioned using the `CodePipeline.yml` again passing in the arn of the KMS key to use for artefact encryption which was provisioned as part of the build account base infratructure
 
-This project uses conventions based on Projectname in order to minimize the number of parameters required to pass to the respective cloudformation templates. For example, the codepipeline assumes
+This project uses conventions based on ProjectName in order to minimize the number of parameters required to pass to the respective cloudformation templates. For example, the codepipeline assumes
 that there are roles named `${ProjectName}-${AWS::Region}-DeploymentRole` in both the prod and dev accounts, rather than passing explicit arns in. These roles are set up by the cloudformation scripts as described above.
 
 ## Features
@@ -53,3 +53,14 @@ In the application stack, the lambda function is deployed using an "AutoPublishA
 ### Pre & Post Traffic Lifecycle Event Hooks
 
 Using CodeDeploy as described above, also allows me to wire up Pre and Post traffic lifecycle event hooks. These are basically Lambda functions that are called at the lifecycle points suggested in the name. Currently they don't really do anything, but could easily be used to test assumptions, trigger some load tests, etc.... The key here is that although I return a success from the Lambda immediately, the pipeline will not continue unless the callback is called, so it is completely feasible to invoke a step function to coordinate a suite of tests, and then based on the test results, callback with either a success or failure result. If a failure result is returned, the pipeline will be halted and the deployment rolled back.
+
+## Roadmap and Contributing
+
+I would really like to continue adding to this example to demonstrate the various techniques. I am also open to Pull Requests or for people to raise issues. Please let me know if there's anything you'd like to see. I have a few ideas myself.
+
+### Future feature
+
+* Some realistic tests kicked off using the Post Traffic Lifecycle Event Hook.
+* An example showing more than 1 lambda function
+
+If you have any other ideas, hit me up by creating an issue.
