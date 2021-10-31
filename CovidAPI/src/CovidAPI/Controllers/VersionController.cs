@@ -13,7 +13,7 @@ namespace CovidAPI.Controllers
         [HttpGet]
         public string Get()
         {
-            return "2.2.8";
+            return VersionHelper.InformationalVersion;
         }
     }
 }
