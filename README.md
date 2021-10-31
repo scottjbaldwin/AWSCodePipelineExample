@@ -54,6 +54,10 @@ In the application stack, the lambda function is deployed using an "AutoPublishA
 
 Using CodeDeploy as described above, also allows me to wire up Pre and Post traffic lifecycle event hooks. These are basically Lambda functions that are called at the lifecycle points suggested in the name. Currently they don't really do anything, but could easily be used to test assumptions, trigger some load tests, etc.... The key here is that although I return a success from the Lambda immediately, the pipeline will not continue unless the callback is called, so it is completely feasible to invoke a step function to coordinate a suite of tests, and then based on the test results, callback with either a success or failure result. If a failure result is returned, the pipeline will be halted and the deployment rolled back.
 
+To demonstrate the rollback in production capability, simply merge the `DeliberatelyBreakProd` branch into `main`, and execute the following command:
+`tools/TestDeployment -Environment Prod -AwsProfilePrefix <prefix>`
+Where you have an AWS profile that can access your prod in the form `<prefix>-Prod`. Alternatively, just make multiple requests to the Version API enpoint in your deployment.
+
 ## Roadmap and Contributing
 
 I would really like to continue adding to this example to demonstrate the various techniques. I am also open to Pull Requests or for people to raise issues. Please let me know if there's anything you'd like to see. I have a few ideas myself.

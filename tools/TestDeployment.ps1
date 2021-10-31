@@ -2,10 +2,14 @@
 param (
     [Parameter()]
     [string]
-    $Environment = "Prod"
+    $Environment = "Prod",
+
+    [Paramter()]
+    [string]
+    $AwsProfilePrefix = "sbaldwin"
 )
 
-$awsProfile = "sbaldwin-$($Environment.ToLower())"
+$awsProfile = "$AwsProfilePrefix-$($Environment.ToLower())"
 $stackName = "CovidSafe-$Environment-Stack"
 $apiUrl = ((aws cloudformation describe-stacks --stack-name $stackName --profile $awsProfile | ConvertFrom-Json).Stacks[0].Outputs | Where-Object OutputKey -eq "ApiURL").OutputValue
 
