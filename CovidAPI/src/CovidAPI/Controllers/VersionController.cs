@@ -13,6 +13,11 @@ namespace CovidAPI.Controllers
         [HttpGet]
         public string Get()
         {
+            var env = Environment.GetEnvironmentVariable("env");
+            if (env == "Prod")
+            {
+                throw new Exception("Contrived production issue");
+            }
             return VersionHelper.InformationalVersion;
         }
     }
