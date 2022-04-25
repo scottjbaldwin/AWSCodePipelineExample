@@ -505,3 +505,44 @@ Resources:
                   OutputArtifacts:
                     - Name: !Sub '${ProjectName}ProdChangeSet'
                   RunOrder: 3
+
+  PipelineSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Sub "${ProjectName}-Pipeline-Notification-Topic"
+  
+  PipelineSNSTopicPolicy:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Action:
+            - sns:Publish
+            Resource:
+            - !Ref PipelineSNSTopic
+      Topics:
+        - !Ref PipelineSNSTopic
+        
+
+  PipelineNotificationEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: !Sub "A rule to capture pipeline events from the ${ProjectName} pipeline"
+      EventPattern:
+        source: 
+          - aws.codepipeline
+        detail-type: 
+          - CodePipeline Pipeline Execution State Change
+        detail:
+          state: 
+            - FAILED
+          pipeline:
+            - !Ref Pipeline
+      State: ENABLED
+      Targets: 
+        - Id: SNSTarget
+          Arn: !Ref PipelineSNSTopic
+
