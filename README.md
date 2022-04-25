@@ -58,6 +58,10 @@ To demonstrate the rollback in production capability, simply merge the `Delibera
 `tools/TestDeployment -Environment Prod -AwsProfilePrefix <prefix>`
 Where you have an AWS profile that can access your prod in the form `<prefix>-Prod`. Alternatively, just make multiple requests to the Version API enpoint in your deployment.
 
+### Build Pipeline Failure Notification
+
+AWS Codepipeline makes use of the native features of the AWS platform to expose state changes in the pipeline. [CodePipeline uses EventBridge events](https://docs.aws.amazon.com/codepipeline/latest/userguide/detect-state-changes-cloudwatch-events.html) to monitor for state changes in the overall, pipeline, any stage in the pipeline, or any specific action. A notification can then be created using SNS. This approach is powerful, as it means that the events can be consumed by a wide range of endpoints (e.g. Lambda). The downside, however, is that it makes setting up a simple email notification to your team when the pipeline fails, somewhat less trivial than it should be. This project now shows how to achieve this by adding the necessary resources (Event, SNS Topic etc...) to the pipeline cloudformation script. Anyone who wants email notifications of the pipeline failure will need to subscribe to the SNS topic.
+
 ## Roadmap and Contributing
 
 I would really like to continue adding to this example to demonstrate the various techniques. I am also open to Pull Requests or for people to raise issues. Please let me know if there's anything you'd like to see. I have a few ideas myself.
