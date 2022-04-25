@@ -45,7 +45,7 @@ namespace CovidAPI.Controllers
         }
 
         // POST api/locations
-        [HttpPot]
+        [HttpPost]
         public async Task Post([FromBody]LocationPost locationPost)
         {
             using (var context = new DynamoDBContext(_dynamoDBClient))
