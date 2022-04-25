@@ -545,4 +545,10 @@ Resources:
       Targets: 
         - Id: SNSTarget
           Arn: !Ref PipelineSNSTopic
+          InputTransformer:
+            InputPathsMap:
+              "pipeline" : "$.detail.pipeline"
+              "executionId" : "$.detail.execution-id"
+              "region": "$.region"
+            InputTemplate: "{\"SNSTopic\": \"Pipeline <pipeline>, execution id <executionId> has failed! URL: https://ap-southeast-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/<pipeline>/view?region=<region>\"}"
 
