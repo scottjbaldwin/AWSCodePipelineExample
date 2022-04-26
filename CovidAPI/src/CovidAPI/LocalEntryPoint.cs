@@ -20,7 +20,7 @@ namespace CovidAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startu>();
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }
