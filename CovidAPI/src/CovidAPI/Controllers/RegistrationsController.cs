@@ -24,7 +24,7 @@ namespace CovidAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]RegistrationPost registrationPost)
         {
-            using(var context = new DynamoDBContext(_dynamoDBClient))
+            using(var context = _dynamoDBClient.CreateDynamoDBContext())
             {
                 Console.WriteLine($"Looking up location Id {registrationPost.LocationId}");
                 var location = await context.QueryAsync<Location>(Location.LocationPartitionKeyValue, 
@@ -68,7 +68,7 @@ namespace CovidAPI.Controllers
                 useLocationId = true;
             }
 
-            using (var context = new DynamoDBContext(_dynamoDBClient))
+            using (var context = _dynamoDBClient.CreateDynamoDBContext())
             {
                 Console.WriteLine($"Looking up registrations for date {registrationDate}");
 
