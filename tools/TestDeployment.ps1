@@ -4,20 +4,26 @@ param (
     [string]
     $Environment = "Prod",
 
-    [Paramter()]
+    [Parameter()]
     [string]
-    $AwsProfilePrefix = "sbaldwin"
+    $AwsProfilePrefix = "sbaldwin",
+
+    [Parameter()]
+    [string]
+    $IsolatedStackName = ""
 )
 
-$awsProfile = "$AwsProfilePrefix-$($Environment.ToLower())"
+$awsProfile = "$AwsProfilePrefix`:$($Environment.ToLower())"
 $stackName = "CovidSafe-$Environment-Stack"
+if ($IsolatedStackName -ne ""){
+    $stackName = "$IsolatedStackName-CovidSafe"
+}
 $apiUrl = ((aws cloudformation describe-stacks --stack-name $stackName --profile $awsProfile | ConvertFrom-Json).Stacks[0].Outputs | Where-Object OutputKey -eq "ApiURL").OutputValue
 
 $versionUrl = "$apiUrl/api/Version"
 $valuesurl = "$apiUrl/api/Values"
 
 Write-Verbose "Stack Name: $stackName, AWS Profile: $awsProfile, API URL: $apiUrl"
-
 $errorCount = 0
 $currentVersion = ""
 $counter = 0
