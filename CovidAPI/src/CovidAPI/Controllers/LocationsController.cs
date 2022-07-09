@@ -24,7 +24,7 @@ namespace CovidAPI.Controllers
         [HttpGet]
         public async Task<IEnumerable<Location>> Get()
         {
-            using (var context = new DynamoDBContext(_dynamoDBClient))
+            using (var context = _dynamoDBClient.CreateDynamoDBContext())
             {
                 return await context.QueryAsync<Location>(Location.LocationPartitionKeyValue).GetRemainingAsync(); 
             }
@@ -34,7 +34,7 @@ namespace CovidAPI.Controllers
         [HttpGet("{id}")]
         public async Task<Location> Get(Guid id)
         {
-            using (var context = new DynamoDBContext(_dynamoDBClient))
+            using (var context = _dynamoDBClient.CreateDynamoDBContext())
             {
                 var location = await context.QueryAsync<Location>(Location.LocationPartitionKeyValue, 
                     QueryOperator.Equal, 
@@ -48,7 +48,7 @@ namespace CovidAPI.Controllers
         [HttpPost]
         public async Task Post([FromBody]LocationPost locationPost)
         {
-            using (var context = new DynamoDBContext(_dynamoDBClient))
+            using (var context = _dynamoDBClient.CreateDynamoDBContext())
             {
                 var location = new Location
                 {
@@ -65,7 +65,7 @@ namespace CovidAPI.Controllers
         [HttpDelete("{id}")]
         public void Delete(Guid id)
         {
-            using (var context = new DynamoDBContext(_dynamoDBClient))
+            using (var context = _dynamoDBClient.CreateDynamoDBContext())
             {
                 var location = new Location
                 {
