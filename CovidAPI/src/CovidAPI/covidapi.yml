@@ -6,8 +6,14 @@ Parameters:
     Type: String
     Default: Dev
     Description: The environment the application is being deployed into
+  IsolatedStackPrefix:
+    Type: String
+    Default: ''
 Conditions: 
   IsProd: !Equals ["Prod", !Ref "Environment"]
+  PipelineStack: !Equals
+    - !Ref IsolatedStackPrefix
+    - ''
 Resources:
   AspNetCoreFunctionRole:
     Type: AWS::IAM::Role
@@ -23,6 +29,7 @@ Resources:
 
   LifecycleEventHookRole:
     Type: AWS::IAM::Role
+    Condition: PipelineStack
     Properties:
       AssumeRolePolicyDocument: 
         Version: "2012-10-17"
@@ -36,10 +43,13 @@ Resources:
   FunctionCloudWatchPolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: CovidAPIFunctionCloudWatchPolicy
+      PolicyName: !Sub ${IsolatedStackPrefix}CovidAPIFunctionCloudWatchPolicy
       Roles:
         - !Ref AspNetCoreFunctionRole
-        - !Ref LifecycleEventHookRole
+        - !If 
+          - PipelineStack 
+          - !Ref LifecycleEventHookRole
+          - !Ref AWS::NoValue
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -54,7 +64,7 @@ Resources:
   ApiDynamoDBPolicy:
     Type: AWS::IAM::Policy
     Properties:
-      PolicyName: CovidAPIDynamoDBPolicy
+      PolicyName: !Sub ${IsolatedStackPrefix}CovidAPIDynamoDBPolicy
       Roles:
         - !Ref AspNetCoreFunctionRole
       PolicyDocument:
@@ -85,8 +95,11 @@ Resources:
     Properties:
       Roles:
         - !Ref AspNetCoreFunctionRole
-        - !Ref LifecycleEventHookRole
-      PolicyName: CovidAPIFunctionXRayPolicy
+        - !If 
+          - PipelineStack 
+          - !Ref LifecycleEventHookRole
+          - !Ref AWS::NoValue
+      PolicyName: !Sub ${IsolatedStackPrefix}CovidAPIFunctionXRayPolicy
       PolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -98,6 +111,7 @@ Resources:
 
   LifecycleFunctionCodeDeployPolicy:
     Type: AWS::IAM::Policy
+    Condition: PipelineStack
     Properties:
       Roles: 
         - !Ref LifecycleEventHookRole
@@ -112,6 +126,7 @@ Resources:
 
   PreTrafficLifecycleFunction:
     Type: AWS::Serverless::Function
+    Condition: PipelineStack
     Properties:
       FunctionName: CodeDeployHook_CovidSafeAPI_PreTrafficHook
       Handler: LifecycleHooks::LifecycleHooks.Function::PreTrafficHook
@@ -130,6 +145,7 @@ Resources:
 
   PostTrafficLifecycleFunction:
     Type: AWS::Serverless::Function
+    Condition: PipelineStack
     Properties:
       FunctionName: CodeDeployHook_CovidSafeAPI_PostTrafficHook
       Handler: LifecycleHooks::LifecycleHooks.Function::PostTrafficHook
@@ -171,6 +187,7 @@ Resources:
       Environment:
         Variables:
           env: !Ref Environment
+          TablePrefix: !Ref IsolatedStackPrefix
       Timeout: 30
       Tracing: Active
       AutoPublishAlias: live
@@ -180,8 +197,14 @@ Resources:
           # A list of alarms that you want to monitor
           - !Ref ApiErrorMetricGreaterThanZeroAlarm
         Hooks:
-          PreTraffic: !Ref PreTrafficLifecycleFunction
-          PostTraffic: !Ref PostTrafficLifecycleFunction
+          PreTraffic: !If 
+            - PipelineStack
+            - !Ref PreTrafficLifecycleFunction
+            - !Ref AWS::NoValue
+          PostTraffic: !If 
+            - PipelineStack
+            - !Ref PostTrafficLifecycleFunction
+            - !Ref AWS::NoValue
       Role: 
         !GetAtt 
           - AspNetCoreFunctionRole
@@ -215,7 +238,7 @@ Resources:
         - AttributeName: sk
           KeyType: RANGE
       BillingMode: PAY_PER_REQUEST
-      TableName: CovidAPI
+      TableName: !Sub ${IsolatedStackPrefix}CovidAPI
 Outputs:
   ApiURL:
     Description: API endpoint URL for Prod environment
