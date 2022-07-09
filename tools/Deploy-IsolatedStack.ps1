@@ -30,4 +30,4 @@ dotnet lambda deploy-serverless "$IsolatedStackName-CovidSafe" `
     -sb $CFNBucket `
     -sp "$IsolatedStackName/" `
     -tp "Environment=$Environment;IsolatedStackPrefix=$IsolatedStackName-" `
-    --msbuild-parameters "/p:VersionSuffix=isolated-stack-$gitCommt"
+    --msbuild-parameters "/p:VersionSuffix=isolated-stack-$IsolatedStackName-$gitCommit"
