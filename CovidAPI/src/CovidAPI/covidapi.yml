@@ -159,7 +159,6 @@ Resources:
       Environment:
         Variables:
           env: !Ref Environment
-          TablePrefix: !Ref IsolatedStackPrefix
       Timeout: 30
       Tracing: Active
       
@@ -188,6 +187,7 @@ Resources:
       Environment:
         Variables:
           env: !Ref Environment
+          TablePrefix: !Ref IsolatedStackPrefix
       Timeout: 30
       Tracing: Active
       AutoPublishAlias: live
