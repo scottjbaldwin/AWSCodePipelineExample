@@ -13,6 +13,9 @@ $locations = $response.Content | ConvertFrom-Json
 
 if ($locations.Count -eq 0) {
     & $PSScriptRoot/SeedData.ps1 -ApiUri $ApiUri
+    $response = Invoke-WebRequest -Uri $locationsAPI
+
+    $locations = $response.Content | ConvertFrom-Json
 }
 $names = @(`
     "Bob Smith", 
