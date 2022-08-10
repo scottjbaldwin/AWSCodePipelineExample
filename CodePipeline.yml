@@ -280,7 +280,11 @@ Resources:
               - !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
             Action: 
               - 's3:*'
-
+  GitHubConnection:
+    Type: 'AWS::CodeStarConnections::Connection'
+    Properties:
+      ConnectionName: GitHubConnection
+      ProviderType: GitHub
   PipelineExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -333,6 +337,11 @@ Resources:
               - Effect: Allow
                 Action: sns:Publish
                 Resource: !Ref ProdApprovalGateTopic
+              - Effect: Allow
+                Action:
+                  - 'codestar-connections:GetConnection'
+                  - 'codestar-connections:ListConnections'
+                Resource: !Ref GitHubConnection
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -389,20 +398,21 @@ Resources:
         Stages:
             - Name: Source
               Actions:
-                - Name: GitHubRepo
+                - Name: Source
+                  InputArtifacts: []
                   ActionTypeId:
-                    Category: Source
-                    Owner: ThirdParty
-                    Provider: GitHub
                     Version: '1'
-                  Configuration:
-                    Owner: scottjbaldwin
-                    Repo: AWSCodePipelineExample
-                    Branch: main
-                    OAuthToken:  "{{resolve:secretsmanager:CovidSafeOAuthToken:SecretString:AccessToken}}"
+                    Owner: AWS
+                    Category: Source
+                    Provider: CodeStarSourceConnection
                   OutputArtifacts:
                     - Name: SourceArtefact
                   RunOrder: 1
+                  Configuration:
+                    ConnectionArn: "arn:aws:codestar-connections:ap-southeast-2:442623963256:connection/3e22674d-2fc7-47da-9bda-8a20ebd55e50"
+                    FullRepositoryId: "napalicorp/AWSCodePipelineExample"
+                    BranchName: "main"
+                    OutputArtifactFormat: "CODE_ZIP"
             - Name: Build
               Actions:
                 - Name: CodeBuild
