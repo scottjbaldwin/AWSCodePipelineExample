@@ -18,6 +18,10 @@ Parameters:
   ProdAccountNo:
     Type: String
     Description: The Account Number of the prod account
+  SourceRepository:
+    Type: String
+    Default: scottjbaldwin/AWSCodePipelineExample
+    Description: The Account Number of the prod account
 
 Resources:
   ArtefactBucket:
@@ -339,8 +343,7 @@ Resources:
                 Resource: !Ref ProdApprovalGateTopic
               - Effect: Allow
                 Action:
-                  - 'codestar-connections:GetConnection'
-                  - 'codestar-connections:ListConnections'
+                  - 'codestar-connections:UseConnection'
                 Resource: !Ref GitHubConnection
       Tags:
         - Key: Project
@@ -409,8 +412,8 @@ Resources:
                     - Name: SourceArtefact
                   RunOrder: 1
                   Configuration:
-                    ConnectionArn: "arn:aws:codestar-connections:ap-southeast-2:442623963256:connection/3e22674d-2fc7-47da-9bda-8a20ebd55e50"
-                    FullRepositoryId: "napalicorp/AWSCodePipelineExample"
+                    ConnectionArn: !Ref GitHubConnection
+                    FullRepositoryId: !Ref SourceRepository
                     BranchName: "main"
                     OutputArtifactFormat: "CODE_ZIP"
             - Name: Build
@@ -562,3 +565,4 @@ Resources:
               "region": "$.region"
             InputTemplate: "{\"SNSTopic\": \"Pipeline <pipeline>, execution id <executionId> has failed! URL: https://ap-southeast-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/<pipeline>/view?region=<region>\"}"
 
+            
