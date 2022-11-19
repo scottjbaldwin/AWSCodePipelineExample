@@ -100,8 +100,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_build'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_build:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_buildlogs'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_buildlogs:*'
                 Action:
                   - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
@@ -156,11 +156,24 @@ Resources:
           - Name: AWS_REGION
             Value: !Sub ${AWS::Region}
       ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: !Ref CodeBuildProjectLogs
+          Status: ENABLED
+          StreamName: MainBuild
       Source: 
         Type: CODEPIPELINE
       Tags:
         - Key: Project
           Value: !Ref ProjectName
+
+  CodeBuildProjectLogs:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub '/aws/codebuild/${ProjectName}_buildlogs'
+      RetentionInDays: 30
 
   CodeTestServiceRole:
     Type: AWS::IAM::Role
@@ -182,8 +195,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Resource:
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_test'
-                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_test:*'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_buildlogs'
+                  - !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/${ProjectName}_buildlogs:*'
                 Action:
                   - 'logs:CreateLogGroup'
                   - 'logs:CreateLogStream'
@@ -238,6 +251,11 @@ Resources:
           - Name: AWS_REGION
             Value: !Sub ${AWS::Region}
       ServiceRole: !GetAtt CodeTestServiceRole.Arn
+      LogsConfig:
+        CloudWatchLogs:
+          GroupName: !Ref CodeBuildProjectLogs
+          Status: ENABLED
+          StreamName: IntegrationTests
       Source: 
         Type: CODEPIPELINE
         BuildSpec: testspec.yml
