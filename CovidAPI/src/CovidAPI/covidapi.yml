@@ -130,7 +130,7 @@ Resources:
     Properties:
       FunctionName: CodeDeployHook_CovidSafeAPI_PreTrafficHook
       Handler: LifecycleHooks::LifecycleHooks.Function::PreTrafficHook
-      Runtime: dotnetcore3.1
+      Runtime: dotnet6
       MemorySize: 2048
       Role: 
         !GetAtt 
@@ -149,7 +149,7 @@ Resources:
     Properties:
       FunctionName: CodeDeployHook_CovidSafeAPI_PostTrafficHook
       Handler: LifecycleHooks::LifecycleHooks.Function::PostTrafficHook
-      Runtime: dotnetcore3.1
+      Runtime: dotnet6
       MemorySize: 2048
       Role: 
         !GetAtt 
@@ -181,7 +181,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: CovidAPI::CovidAPI.LambdaEntryPoint::FunctionHandlerAsync
-      Runtime: dotnetcore3.1
+      Runtime: dotnet6
       MemorySize: 2048
       CodeUri: ""
       Environment:
