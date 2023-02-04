@@ -10,7 +10,7 @@ Parameters:
     Default: covid-safe
   CodeBuildEnvironment:
     Type: String
-    Default: "aws/codebuild/standard:5.0"
+    Default: "aws/codebuild/standard:6.0"
     Description: Name of the image to use for the CodeBuild container
   DevAccountNo:
     Type: String
