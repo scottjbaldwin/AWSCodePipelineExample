@@ -18,6 +18,10 @@ Parameters:
   ProdAccountNo:
     Type: String
     Description: The Account Number of the prod account
+  SourceRepository:
+    Type: String
+    Default: scottjbaldwin/AWSCodePipelineExample
+    Description: The Account Number of the prod account
 
 Resources:
   ArtefactBucket:
@@ -298,7 +302,11 @@ Resources:
               - !Sub 'arn:aws:s3:::${BucketPrefix}-artefactbucket'
             Action: 
               - 's3:*'
-
+  GitHubConnection:
+    Type: 'AWS::CodeStarConnections::Connection'
+    Properties:
+      ConnectionName: GitHubConnection
+      ProviderType: GitHub
   PipelineExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -351,6 +359,10 @@ Resources:
               - Effect: Allow
                 Action: sns:Publish
                 Resource: !Ref ProdApprovalGateTopic
+              - Effect: Allow
+                Action:
+                  - 'codestar-connections:UseConnection'
+                Resource: !Ref GitHubConnection
       Tags:
         - Key: Project
           Value: !Ref ProjectName
@@ -407,20 +419,21 @@ Resources:
         Stages:
             - Name: Source
               Actions:
-                - Name: GitHubRepo
+                - Name: Source
+                  InputArtifacts: []
                   ActionTypeId:
-                    Category: Source
-                    Owner: ThirdParty
-                    Provider: GitHub
                     Version: '1'
-                  Configuration:
-                    Owner: scottjbaldwin
-                    Repo: AWSCodePipelineExample
-                    Branch: main
-                    OAuthToken:  "{{resolve:secretsmanager:CovidSafeOAuthToken:SecretString:AccessToken}}"
+                    Owner: AWS
+                    Category: Source
+                    Provider: CodeStarSourceConnection
                   OutputArtifacts:
                     - Name: SourceArtefact
                   RunOrder: 1
+                  Configuration:
+                    ConnectionArn: !Ref GitHubConnection
+                    FullRepositoryId: !Ref SourceRepository
+                    BranchName: "main"
+                    OutputArtifactFormat: "CODE_ZIP"
             - Name: Build
               Actions:
                 - Name: CodeBuild
@@ -570,3 +583,4 @@ Resources:
               "region": "$.region"
             InputTemplate: "{\"SNSTopic\": \"Pipeline <pipeline>, execution id <executionId> has failed! URL: https://ap-southeast-2.console.aws.amazon.com/codesuite/codepipeline/pipelines/<pipeline>/view?region=<region>\"}"
 
+            
