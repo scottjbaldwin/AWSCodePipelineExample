@@ -27,7 +27,7 @@ phases:
       - dotnet build ./CovidAPI/src/LifecycleHooks/LifecycleHooks.csproj
 
       # run unit tests
-      - dotnet test ./CovidAPI/test/CovidAPI.Tests/CovidAPI.Tests.csproj --verbosity normal --logger "trx;LogFileName=salad.Api.trx" --results-directory './testresults'
+      - dotnet test ./CovidAPI/test/CovidAPI.Tests/CovidAPI.Tests.csproj --verbosity normal --logger "trx;LogFileName=salad.Api.trx" --results-directory './testresults' --collect:"XPlat Code Coverage"
 
   post_build:
     commands:
@@ -46,6 +46,18 @@ phases:
         --s3-prefix covid-safe/$CODEBUILD_BUILD_ID
         --output-template CovidAPIStack.yml
         --msbuild-parameters $MSBUILD_PARAMETERS
+
+reports:
+  backend:
+    file-format: VisualStudioTrx
+    files:
+      - '**/*.trx'
+    base-directory: './testresults'
+  backend-code-coverage:
+    file-format: COBERTURAXML
+    files:
+      - '**/*.cobertura.xml'
+    base-directory: './testresults'
 
 artifacts:
   files:
