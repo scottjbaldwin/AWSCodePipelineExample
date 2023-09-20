@@ -8,10 +8,10 @@
     <VersionPrefix>2.0.0</VersionPrefix>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="7.3.0" />
-    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.2" />
-    <PackageReference Include="AWSSDK.XRay" Version="3.7.102.48" />
-    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.11.0" />
-    <PackageReference Include="AWSSDK.DynamoDBV2" Version="3.7.101.38" />
+    <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="8.1.0" />
+    <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.7" />
+    <PackageReference Include="AWSSDK.XRay" Version="3.7.201.4" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.12.0" />
+    <PackageReference Include="AWSSDK.DynamoDBV2" Version="3.7.201.13" />
   </ItemGroup>
 </Project>
