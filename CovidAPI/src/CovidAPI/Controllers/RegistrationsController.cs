@@ -15,17 +15,17 @@ namespace CovidAPI.Controllers
     [Route("api/[controller]")]
     public class RegistrationsController : ControllerBase
     {
-        private IAmazonDynamoDB _dynamoDBClient;
+        private IDynamoDbContextCreator _dynamoDbContextCreator;
 
-        public RegistrationsController(IAmazonDynamoDB dynamoDBClient)
+        public RegistrationsController(IDynamoDbContextCreator dynamoDbContextCreator)
         {
-            _dynamoDBClient = dynamoDBClient;
+            _dynamoDbContextCreator = dynamoDbContextCreator;
         }
         // POST api/registrations
         [HttpPost]
         public async Task<IActionResult> Post([FromBody]RegistrationPost registrationPost)
         {
-            using(var context = _dynamoDBClient.CreateDynamoDBContext())
+            using(var context = _dynamoDbContextCreator.CreateContext())
             {
                 Console.WriteLine($"Looking up location Id {registrationPost.LocationId}");
                 var location = await context.QueryAsync<Location>(Location.LocationPartitionKeyValue, 
@@ -69,7 +69,7 @@ namespace CovidAPI.Controllers
                 useLocationId = true;
             }
 
-            using (var context = _dynamoDBClient.CreateDynamoDBContext())
+            using (var context = _dynamoDbContextCreator.CreateContext())
             {
                 Console.WriteLine($"Looking up registrations for date {registrationDate}");
 
