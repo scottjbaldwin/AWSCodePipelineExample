@@ -2,7 +2,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using System;
 
-namespace CovidAPI
+namespace CovidAPI.DynamoDb
 {
     public static class DynamoDBHelper
     {

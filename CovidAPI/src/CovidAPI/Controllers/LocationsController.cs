@@ -8,23 +8,24 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using CovidAPI.Model;
+using CovidAPI.DynamoDb;
 
 namespace CovidAPI.Controllers
 {
     [Route("api/[controller]")]
     public class LocationsController : ControllerBase
     {
-        private IAmazonDynamoDB _dynamoDBClient;
-        public LocationsController(IAmazonDynamoDB dynamoDBClient)
+        private IDynamoDbContextCreator _dynamoDbContextCreator;
+        public LocationsController(IDynamoDbContextCreator dynamoDbContextCreator)
         {
-            _dynamoDBClient = dynamoDBClient;
+            _dynamoDbContextCreator = dynamoDbContextCreator;
         }
 
         // GET api/locations
         [HttpGet]
         public async Task<IEnumerable<Location>> Get()
         {
-            using (var context = _dynamoDBClient.CreateDynamoDBContext())
+            using (var context = _dynamoDbContextCreator.CreateContext())
             {
                 return await context.QueryAsync<Location>(Location.LocationPartitionKeyValue).GetRemainingAsync(); 
             }
@@ -32,15 +33,20 @@ namespace CovidAPI.Controllers
 
         // GET api/locations/79427303-2d11-4f4f-a4f2-abc410e99e82
         [HttpGet("{id}")]
-        public async Task<Location> Get(Guid id)
+        public async Task<IActionResult> Get(Guid id)
         {
-            using (var context = _dynamoDBClient.CreateDynamoDBContext())
+            using (var context = _dynamoDbContextCreator.CreateContext())
             {
-                var location = await context.QueryAsync<Location>(Location.LocationPartitionKeyValue, 
+                var location = (await context.QueryAsync<Location>(Location.LocationPartitionKeyValue, 
                     QueryOperator.Equal, 
-                    new [] {id.ToString()}).GetRemainingAsync();
+                    new [] {id.ToString()}).GetRemainingAsync()).FirstOrDefault();
 
-                return location.FirstOrDefault();
+                if (location == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(location);
             }
         }
 
@@ -48,7 +54,7 @@ namespace CovidAPI.Controllers
         [HttpPost]
         public async Task Post([FromBody]LocationPost locationPost)
         {
-            using (var context = _dynamoDBClient.CreateDynamoDBContext())
+            using (var context = _dynamoDbContextCreator.CreateContext())
             {
                 var location = new Location
                 {
@@ -65,7 +71,7 @@ namespace CovidAPI.Controllers
         [HttpDelete("{id}")]
         public void Delete(Guid id)
         {
-            using (var context = _dynamoDBClient.CreateDynamoDBContext())
+            using (var context = _dynamoDbContextCreator.CreateContext())
             {
                 var location = new Location
                 {

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Amazon.DynamoDBv2;
+using CovidAPI.DynamoDb;
 
 namespace CovidAPI
 {
@@ -25,6 +26,7 @@ namespace CovidAPI
             services.AddControllers();
 
             services.AddAWSService<IAmazonDynamoDB>();
+            services.AddScoped<IDynamoDbContextCreator, DynamoDbContextCreator>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline
